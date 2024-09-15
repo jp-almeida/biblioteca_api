@@ -124,7 +124,7 @@ class Biblioteca:
             response = "HTTP/1.1 404 Not Found\n\nLivro não encontrado"
         else:
             # Se a rota não for encontrada
-            response = "404 \n\nRota não encontrada"
+            response = "HTTP/1.1 404 \n\nRota não encontrada"
 
         # Enviar resposta ao cliente
         client_socket.sendall(response.encode('utf-8'))

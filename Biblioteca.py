@@ -39,7 +39,7 @@ class Biblioteca:
     return None
   
   def removerLivro(self, livro_id):
-     #se o livro não existir, retornará None, que será tratado como 
+     #se o livro não existir, retornará None, que será tratado como 404
      return self.livros.pop(livro_id, None)
 
 b = Biblioteca()

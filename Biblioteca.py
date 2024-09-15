@@ -37,6 +37,10 @@ class Biblioteca:
             livro.autor_id = autor_id
         return livro
     return None
+  
+  def removerLivro(self, livro_id):
+     #se o livro não existir, retornará None, que será tratado como 
+     return self.livros.pop(livro_id, None)
 
 b = Biblioteca()
 b.adicionarLivro('1984')

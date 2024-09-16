@@ -1,4 +1,5 @@
 from Livro import Livro
+from Autor import Autor
 import socket
 import json 
 
@@ -10,6 +11,46 @@ class Biblioteca:
     self.proximo_id_livro = 1
     self.proximo_id_autor = 1
 
+  #métodos para autores
+
+  def adicionarAutor(self, nome, nascimento='Não disponível', nacionalidade = "Não disponível"):
+    autor = Autor(nome, nascimento, nacionalidade)
+    autor_id = self.proximo_id_autor
+
+    self.autores[autor_id] = autor
+    self.proximo_id_autor += 1
+    return autor_id
+
+  def listarAutores(self):
+    resultado = []
+    for autor_id, autor in self.autores.items():
+      resultado.append(autor.to_dict(autor_id))
+    return resultado
+  
+  def detalhesAutor(self, autor_id):
+    autor = self.autores.get(autor_id, None)
+    if autor:
+      return autor.to_dict(autor_id)
+    return None
+  
+  def atualizarAutor(self, autor_id, nome=None, nascimento=None, nacionalidade=None):
+    autor = self.autores.get(autor_id)
+    if autor:
+        if nome:
+            self.autores[autor_id].nomee = nome
+        if nascimento:
+            self.autores[autor_id].nascimento = nascimento
+        if nacionalidade:
+            self.autores[autor_id].nacionalidade = nacionalidade
+        return autor.to_dict(autor_id)
+    return None
+  
+  def removerAutor(self, autor_id):
+     #se o autor não existir, retornará None, que será tratado como 404
+     return self.autores.pop(autor_id, None)
+  
+  #métodos para livros
+
   def adicionarLivro(self, titulo, genero='Geral', ano=None, autor_id=None):
     livro = Livro(titulo, genero, ano, autor_id)
     livro_id = self.proximo_id_livro
@@ -18,11 +59,13 @@ class Biblioteca:
     self.proximo_id_livro += 1
     return livro_id
   
+  
   def listarLivros(self):
     resultado = []
     for livro_id, livro in self.livros.items():
       resultado.append(livro.to_dict(livro_id))
     return resultado
+
 
   def detalhesLivro(self, livro_id):
     livro = self.livros.get(livro_id, None)
@@ -30,6 +73,7 @@ class Biblioteca:
       return livro.to_dict(livro_id)
     return None
   
+
   def atualizarLivro(self, livro_id, titulo=None, genero=None, ano=None, autor_id=None):
     livro = self.livros.get(livro_id)
     if livro:
@@ -44,6 +88,7 @@ class Biblioteca:
         return livro.to_dict(livro_id)
     return None
   
+
   def removerLivro(self, livro_id):
      #se o livro não existir, retornará None, que será tratado como 404
      return self.livros.pop(livro_id, None)
@@ -71,7 +116,8 @@ class Biblioteca:
         body = {}
       
       #Roteamento
-        
+      
+      #livros
       if path.startswith('/books'):
         if method == 'POST' and path == '/books':
           titulo = body.get('titulo')
@@ -123,8 +169,58 @@ class Biblioteca:
           else:
             response = "HTTP/1.1 404 Not Found\n\nLivro não encontrado"
       
-      #metodos para autores
+      #autores
+      elif path.startswith('/authors'):
+        if method == 'POST' and path == '/authors':
+          nome = body.get('nome')
+          nascimento = body.get('nascimento')
+          nacionalidade = body.get('nacionalidade')
+          autor_id = biblioteca.adicionarAutor(nome, nascimento, nacionalidade)
+          responseBody = json.dumps({'id':autor_id})
+          response = f"HTTP/1.1 201 Created\nContent-Type: application/json\n\n{responseBody}"
+
+        elif method == 'GET' and path == '/authors':
+          autores =  biblioteca.listarAutores()
+          responseBody = json.dumps(autores)
+          response = f"HTTP/1.1 200 OK\nContent-Type: application/json\n\n{responseBody}"
+        
+        elif method == 'GET' and path.startswith('/authors/'):
+          autor_id = int(path.split('/')[-1])
+          autor = biblioteca.detalhesAutor(autor_id)
+          if autor:
+            responseBody = json.dumps(autor)
+            response = f"HTTP/1.1 200 OK\nContent-Type: application/json\n\n{responseBody}"
+          else:
+            response = "HTTP/1.1 404 Not Found\n\nAutor não encontrado"
       
+        elif method == 'PUT' and path.startswith('/authors/'):
+          autor_id = int(path.split('/')[-1])
+
+          # Passa os parâmetros ao método atualizarAutor
+          nome = body.get('nome')
+          nascimento = body.get('nascimento')
+          nacionalidade = body.get('nacionalidade')
+
+          # Atualiza o autor com os dados fornecidos
+          autor = biblioteca.atualizarAutor(autor_id, nome=nome, nascimento=nascimento, nacionalidade=nacionalidade)
+
+          if autor:
+            responseBody = json.dumps(autor)
+            response = f"HTTP/1.1 200 OK\nContent-Type: application/json\n\n{responseBody}"
+          else:
+            response = "HTTP/1.1 404 Not Found\n\nAutor não encontrado"
+        
+        elif method == 'DELETE' and path.startswith('/authors/'):
+          autor_id = int(path.split('/')[-1])
+          autor_deletado = biblioteca.removerAutor(autor_id)
+          if autor_deletado:
+            responseBody = json.dumps({'id': autor_id})
+            response = "HTTP/1.1 204 No Content\n\n"
+          else:
+            response = "HTTP/1.1 404 Not Found\n\nAutor não encontrado"
+      
+
+
       else:
           # Se a rota não for encontrada
         response = "HTTP/1.1 404 \n\nRota não encontrada"

@@ -38,7 +38,7 @@ class Biblioteca:
     autor = self.autores.get(autor_id)
     if autor:
         if nome:
-            self.autores[autor_id].nomee = nome
+            self.autores[autor_id].nome = nome
         if nascimento:
             self.autores[autor_id].nascimento = nascimento
         if nacionalidade:

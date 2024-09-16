@@ -8,6 +8,7 @@ class Biblioteca:
   def __init__(self) -> None:
     self.livros = {}
     self.autores = {}
+    self.associacoes = {}
     self.proximo_id_livro = 1
     self.proximo_id_autor = 1
 
@@ -92,6 +93,30 @@ class Biblioteca:
   def removerLivro(self, livro_id):
      #se o livro não existir, retornará None, que será tratado como 404
      return self.livros.pop(livro_id, None)
+  
+
+  #metodos para associações
+  def associarLivro(self, autor_id, livro_id):
+    if self.associacoes[autor_id]:
+      self.associacoes[autor_id].append(livro_id)
+    else:
+      self.associacoes[autor_id] = [livro_id]
+    return autor_id
+  
+  def listarLIvrosAutor(self, autor_id):
+    resultado = []
+    for autor_id, associacao in self.associacoes:
+      resultado.append(self.associacoes[autor_id])
+    return resultado
+  
+  def removerAssociacao(self, autor_id, livro_id):
+    for associacao in self.associacoes:
+      if autor_id:
+        for livros_id in self.associacoes[autor_id]:
+          if livro_id:
+            removido = self.associacoes[autor_id].pop(livro_id)
+    return removido
+
 
   def servidorBiblioteca(self):
      biblioteca = Biblioteca()

@@ -120,10 +120,10 @@ Este método inicializa o servidor e implementa o roteamento para lidar com as r
   - `DELETE`: Remove um autor pelo ID.
 
 - **/authors/{id}/books**
-  - `POST`: Associa um livro a um autor. Requer no corpo da requisição o ID do livro.
   - `GET`: Lista todos os livros associados a um autor específico.
 
 - **/authors/{id}/books/{book_id}**
+  - `POST`: Associa um livro a um autor.
   - `DELETE`: Desassocia um livro de um autor específico.
 
 #### Detalhes do Servidor:

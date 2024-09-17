@@ -97,26 +97,27 @@ class Biblioteca:
 
   #metodos para associações
   def associarLivro(self, autor_id, livro_id):
-    if self.associacoes[autor_id]:
+    if self.associacoes.get(autor_id) != None:
       self.associacoes[autor_id].append(livro_id)
     else:
       self.associacoes[autor_id] = [livro_id]
+    self.livros[livro_id].autor_id = autor_id
     return autor_id
   
-  def listarLIvrosAutor(self, autor_id):
-    resultado = []
-    for autor_id, associacao in self.associacoes:
-      resultado.append(self.associacoes[autor_id])
-    return resultado
+  def listarLivrosAutor(self, autor_id):
+    if self.associacoes.get(autor_id) != None:
+      return self.associacoes[autor_id]
+    return None
   
   def removerAssociacao(self, autor_id, livro_id):
-    for associacao in self.associacoes:
-      if autor_id:
-        for livros_id in self.associacoes[autor_id]:
-          if livro_id:
-            removido = self.associacoes[autor_id].pop(livro_id)
-    return removido
-
+    if self.associacoes.get(autor_id):
+      if livro_id in self.associacoes[autor_id]:
+        self.associacoes[autor_id].remove(livro_id)
+        self.livros[livro_id].autor_id = None
+        return livro_id
+      return "Sem livro"
+    return "Sem autor"
+    
 
   def servidorBiblioteca(self):
      biblioteca = Biblioteca()
@@ -194,6 +195,57 @@ class Biblioteca:
           else:
             response = "HTTP/1.1 404 Not Found\n\nLivro não encontrado"
       
+      #Associações
+      elif "/authors/" in path and "/books" in path:
+
+        if method == 'POST':
+          #capta ids do autor e do livro pelo path
+          autor_id = int(path.split('/')[-3])
+          livro_id = int(path.split('/')[-1])
+
+          #realiza a associação 
+          autor_id_associado = biblioteca.associarLivro(autor_id,livro_id)
+
+          #pega os livros do autor e retorna-os 
+          retorno = biblioteca.listarLivrosAutor(autor_id_associado)
+          if retorno == "Sem autor":
+            responseBody = json.dumps("Autor não encontrado")
+          elif retorno == "Sem livro":
+            responseBody = json.dumps("Livro não encontrado")
+          else:
+            responseBody = json.dumps(retorno)
+            
+          response = f"HTTP/1.1 200 OK\nContent-Type: application/json\n\n{responseBody}"
+
+        elif  method == 'GET':
+          #capta o id do autor pelo path
+          autor_id = int(path.split('/')[-2])
+
+          #busca os livros associados ao autor
+          livros_autor = biblioteca.listarLivrosAutor(autor_id)
+          
+          retorno = []
+          for livro_id in livros_autor:
+            retorno.append(biblioteca.livros[livro_id].to_dict(livro_id))
+          
+          responseBody = json.dumps(retorno)
+          response = f"HTTP/1.1 200 OK\nContent-Type: application/json\n\n{responseBody}"
+
+        elif method == 'DELETE':
+          #capta os ids do autor e do livro pelo path
+          autor_id_d = int(path.split('/')[-3])
+          livro_id_d = int(path.split('/')[-1])
+
+          #desassocia o livro e retorna-o
+          livro_desassociado = biblioteca.removerAssociacao(autor_id_d,livro_id_d)
+
+          #manda o livro desassociado, se existir
+          if livro_desassociado:
+            responseBody = json.dumps({'id': autor_id_d, 'livro desassociado id ':livro_desassociado})
+            response = f"HTTP/1.1 200 OK\nContent-Type: application/json\n\n{responseBody}"
+          else:
+            response = "HTTP/1.1 404 Not Found\n\nAutor não encontrado"
+      
       #autores
       elif path.startswith('/authors'):
         if method == 'POST' and path == '/authors':
@@ -244,45 +296,6 @@ class Biblioteca:
           else:
             response = "HTTP/1.1 404 Not Found\n\nAutor não encontrado"
       
-      #associacoes
-      elif path.startswith('/authors/'):
-
-        if method == 'POST':
-          #capta ids do autor e do livro pelo path
-          autor_id = int(path.split('/')[-3])
-          livro_id = int(path.split('/'[-1]))
-
-          #realiza a associação 
-          autor_id_associado = biblioteca.associarLivro(autor_id,livro_id)
-
-          #pega os livros do autor e retorna-os 
-          livros_autor = biblioteca.listarLIvrosAutor(autor_id_associado)
-          responseBody = json.dumps(livros_autor)
-          response = f"HTTP/1.1 200 OK\nContent-Type: application/json\n\n{responseBody}"
-
-        elif  method == 'GET':
-          #capta o id do autor pelo path
-          autor_id = int(path.split('/')[-1])
-
-          #busca os livros associados ao autor
-          livros_autor = biblioteca.listarLIvrosAutor(autor_id)
-          responseBody = json.dumps(livros_autor)
-          response = f"HTTP/1.1 200 OK\nContent-Type: application/json\n\n{responseBody}"
-
-        elif method == 'DELETE':
-          #capta os ids do autor e do livro pelo path
-          autor_id_d = int(path.split('/'[-3]))
-          livro_id_d = int(path.spilt('/')[-1])
-
-          #desassocia o livro e retorna-o
-          livro_desassociado = biblioteca.removerAssociacao(autor_id_d,livro_id_d)
-
-          #manda o livro desassociado, se existir
-          if livro_desassociado:
-            responseBody = json.dumps({'id': autor_id_d, 'livro desassociado id ':livro_desassociado})
-            response = f"HTTP/1.1 200 OK\nContent-Type: application/json\n\n{responseBody}"
-          else:
-            response = "HTTP/1.1 404 Not Found\n\nAutor não encontrado"
 
 
       else:

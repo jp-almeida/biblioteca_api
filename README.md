@@ -132,3 +132,10 @@ Este método inicializa o servidor e implementa o roteamento para lidar com as r
 - Suporta os métodos HTTP: `GET`, `POST`, `PUT`, `DELETE`.
 
 A lógica de roteamento distribui as requisições para os métodos correspondentes da classe **Biblioteca**, garantindo que as operações sobre autores e livros sejam manipuladas corretamente.
+
+![alt text](image.png)
+![alt text](image-1.png)
+![alt text](image-2.png)
+![alt text](image-3.png)
+![alt text](image-4.png)
+![alt text](image-5.png)

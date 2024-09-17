@@ -3,6 +3,12 @@
 ## Descrição
 Este é um projeto simples que implementa uma API para gerenciar livros e autores de uma biblioteca. A API é capaz de processar requisições HTTP para operações CRUD (Criar, Ler, Atualizar e Excluir) sobre livros e autores, além de permitir a associação de livros a autores. Nossa API foi implementada usando bibliotecas nativas do Python e manipulação de sockets.
 
+## Como rodar o projeto
+Para implementar nossa API basta: 
+- rodar o arquivo `Main.py` que iniciará usando todas as classes;
+- abra uma plataforma de requisição como o Postman;
+- colocar o url `http://localhost:8080` e utilizar os paths dos endpoints descritos na seção `5. Servidor API Biblioteca -Roteamentos`.
+
 ## Estrutura de Classes
 
 O projeto é composto por quatro classes principais:
